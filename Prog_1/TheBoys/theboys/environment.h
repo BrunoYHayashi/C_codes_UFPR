@@ -1,6 +1,12 @@
 #ifndef ENVIRONMENT
 #define ENVIRONMENT
 
+/*
+Usar #define para essas constantes com o propósito de:
+->Facilitar legibilidade
+->Fácil manutenção
+*/
+
 /*Define constantes do mundo de acordo com tpf_enunciado*/
 #define STARTER_TIME 0
 #define ENDING_TIME 525600
