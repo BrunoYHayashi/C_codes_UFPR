@@ -1,0 +1,16 @@
+--CHARACTER ENCODING--
+As the previous class showed, memory can be understood as a collection of bytes.
+A byte, however, represents a number between 0 and 255. Therefore, how characters are represented in a computer?
+Through mappings -- tables that relate numbers and characters.
+Before starting, lets establish some concepts:
+	Character: a language symbol (letter, digit or signal);
+	Character set (charset): a set of every characters supported by a system or coding pattern;
+	Codification: the process of translating characters in their respective numeric value in a system or coding pattern;
+
+--ASCII ENCONDING--
+For digital electronic computers, the oldest character encoding is called American Standar Code for Information Interchange (ASCII).
+ASCII contemplates a set of english characters, signals and some control characters, totalizing 128 characters (0~127).
+ASCII is supported to every current computer system.
+General organization in characters:
+	0~31 + 127: control characters;
+	32~126: unpredictable characters;
