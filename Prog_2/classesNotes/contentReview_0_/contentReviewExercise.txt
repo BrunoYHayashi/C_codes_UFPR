@@ -1,0 +1,26 @@
+Suppose you have to implement an algorithm capable of:
+1. Store the code of 500000 students, this code can have up to 8 digits.
+   ex: 00000001
+2. Check if a given code exists.
+3. Show the user the past code and the next code for a given input.
+4. Remove a code
+
+Which would be the best data structure?
+    ->array;
+    ->list;
+    ->stack;
+Considering: 
+    -Memory usage
+    -Access speed
+
+Ans: The answer for the question is an sorted array. Because: 
+	-It can easily check the previous and the next codes of an student (V[i-1], V[i+1]);
+	-The search for a certain code is optimized by binary search O(log n);
+	-It uses less memory than the others, because it doesnt use pointers;
+	-The removal is O(n), due to shifting all the array after removing a code.
+	
+	OBS: If the array index represent the code, the search cost would be O(1), by just checking if 
+		V[code] == 1 || V[code] == 0;
+	It also solves the removal problem, by being O(1) too. It only has to do
+		V[code] = 0;
+		The problem of using this method, is if the number of students is huge, like, REALLY HUGE. Because it will need tons of memory. So, for small quantities, using this method is great! But it is needed to check if it is really worth it in larger scales.   

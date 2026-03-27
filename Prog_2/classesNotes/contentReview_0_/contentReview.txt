@@ -1,0 +1,84 @@
+--MEMORY--
+What is it?
+	The answer depends on the context it is in
+	->In high-level programming, it can mean a set of stored typed data
+	->In low-level programming, it can mean a set of stored bytes, representing data
+	->In hardware context, it can mean a physical component used to store bits
+
+--MEMORY AND DATA TYPES--
+Until now, my programming focused in data types (natives or abstracts), and each type, usually serves only its theoretical purpose. 
+But, in this subject I will work not only with data types, but also with binary files, recording and reading structs, bit operations, void and function pointers and removal of memory abstraction layers.
+
+Starting with native types: wich is the smallest (in bytes) available in C? What about the largest?
+->Smallest: Char (1 byte)
+->Largest: long double (12 to 16 bytes)
+
+Other types in bytes:
+	-Char: 1;
+	-short: 2;
+	-int: 4;
+	-float: 4;
+	long long: 8;
+	double: 8;
+	long double: 16;
+
+But what about it?
+What we can tell, is that data types are only facilities provided by the compiler, after all, all we have are bytes.
+Hence, different data types can overlap in memory, like this:
+	int (4 bytes) = 4 char, or 2 short, or 1 int
+So, what is the difference between an int and a float?
+	In general, both are equal four bytes. But, they differ in how to interpret these bytes.
+		int: 31 bits for the value; 1 bit for the sign;
+		float: 23 bits for the value; 8 bits represents the exponent; 1 bit for the sign;
+			-(IEEE 754)
+
+--DYNAMIC MEMORY ALLOCATION--
+The idea of working with bytes, extends to dynamic memory allocation. In C, we use the function malloc:
+	void *malloc(size_t size);
+		->size_t is an unsigned integer number with a certain quantity of bytes defined by the architecture.
+		->size indicates the quantity of bytes, in a contiguous space is needed to alloc. 
+What indicates to the program how to interpret the contiguous space, is the casting. It converts the void* pointer to a typed pointer.
+	int *ptr = (int*) malloc(40);
+	short *ptr = (short*) malloc(40);
+
+--STRUCTURES IN C--
+Structures in C are a typed data that allows to create unique logic with multiple variables, whether homogeneous or heterogeneous.
+At low-level, a structure is a contiguous block of memory. Its syze is equal to the sum of the sizes, in byte, of its member variables.	
+->Grouping of bits!!
+>Memory alignment
+The same code result in different sizes depending on how way the variables are arranged. In C, structs are aligned in bytes, which means defining your variables like:
+	struct structure1 {
+		char char1;
+		int int1;
+		char char2.
+	};
+Is different from
+	struct structure 2 {
+		char char1;
+		char char2;
+		int int1;
+	};
+The second structure, uses 8 bytes, while the first one uses 12 bytes due to padding.
+
+--DATA STRUCTURES--
+ARRAY
+	Contiguous block of memory with a determined size (depends on the data type or de quantity of elements needed)
+	Global array != local array != dynamically allocated array
+
+LIST
+	Data structure that organizes individual elements linearly by pointers. Any compatible element can be added, removed or moved from the list.
+	Singly linked list x doubly linked list
+	Linked list without sentinel x linked list with a sentinel (dummy node)
+	Linear linked list x circular linked list
+
+QUEUE
+	List structure with specific ways of insertion and removal.
+	In a queue, there is always an element inserted, which is allocated to the end of the structure.
+	In another hand, the process of removing in a queue, removes the first element of it.
+	FIFO (First in, first out)
+
+STACK
+	List structure with specific ways of insertion and removal.
+	In a stack, the inserted element is always allocated to the start of the structure.
+	Also, the removal operation, removes the start of the stack.
+	LIFO (Last in, first out)
