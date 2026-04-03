@@ -1,0 +1,36 @@
+--CHARACTER ENCODING--
+As the previous class showed, memory can be understood as a collection of bytes.
+A byte, however, represents a number between 0 and 255. Therefore, how characters are represented in a computer?
+Through mappings -- tables that relate numbers and characters.
+Before starting, lets establish some concepts:
+	Character: a language symbol (letter, digit or signal);
+	Character set (charset): a set of every characters supported by a system or coding pattern;
+	Codification: the process of translating characters in their respective numeric value in a system or coding pattern;
+
+--ASCII ENCONDING--
+For digital electronic computers, the oldest character encoding is called American Standar Code for Information Interchange (ASCII).
+ASCII contemplates a set of english characters, signals and some control characters, totalizing 128 characters (0~127).
+ASCII is supported to every current computer system.
+General organization in characters:
+	0~31 + 127: control characters;
+	32~126: unpredictable characters;as
+
+--ENCODING PAGES--
+There is an interesting point in ASCII, it defines 128 characters.
+When ASCII encoding was created, it was implemented in 7 bits systems, and with the 8 bits system, the eighth bit was a parity bit. 
+But with only 128 symbols, for some contexts, there were symbols missing. Therefore, the encoding pages were created, extending the ASCII table in more 128 symbols according to a certain need.
+Examples:
+	CP-437: added accented characters and simple graphics.
+	KOI8-R:Russian Cyrilic.
+	BraSCII: brazilian portuguese
+
+--MULTIBYTE CHARACTERS--
+Even with the encoding pages, for the variety of languages and applications, 256 symbols weren't enough.
+The idea of multibyte characters, came about as an solution for it, using more than one byte for character.
+Tons of encoding patterns were proposed using multibyte characters (2-4 bytes, for example).
+One of them was the Unicode pattern. It has an enormous quantity of characters, the most famous ones are:
+	UTF-8 (8-bit Unicode Transformation Format): 1 to 4 bytes per character;
+	UTF-16 (16-bit Unicode Transformation Format): 2 to 4 bytes per character, utilized in some windows API's;
+	UTF-32 (32-bit Unicode Transformation Format): 4 bytes per character;
+The most used one is UTF-8. But, why?
+	->Because of its adjustable size coding
