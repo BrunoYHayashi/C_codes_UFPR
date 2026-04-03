@@ -1,0 +1,93 @@
+--ARQUIVOS--
+Um arquivo armazena uma sequência de bytes, cuja interpretação é determinada pela aplicação.
+Utilizados para armazenar informações de forma persistente (disco magnético ou ssd).
+Em geral, existem duas categorias, texto e binários.
+
+--ARQUIVOS TEXTO--
+Conteúdo pode ser diretamente reconhecido por humanos.
+Armazenam diversos tipos de dados, como textos sem formatação, códigos-fonte, configurações de sistema...
+Na tabela ASCII, os caracteres digitáveis estão na faixa de 32 a 127, enquanto de controle são \0, \t, \n e \r.
+
+--MANIPULAÇÃO DE ARQUIVOS EM C--
+Manipulação de arquivos por meio da biblioteca <stdio.h>.
+O processamento de arquivos pode ser realizado usando streams (FILE*) ou descritores (fornecidos pelo SO). Embora menos eficientes em desempenho, streams são mais abstratos e portáteis.
+A biblioteca stdio inclui outros arquivos padronizados que possuem funcionalidades específicas:
+    stdin - entrada padrão, normalmente associada ao teclado (scanf())
+    stdout - saída padrão, associada à tela (printf())
+    stderr - saída de erros, associados à tela (perror())
+
+--ABRINDO E FECHANDO ARQUIVOS--
+Ao abrir um arquivo, estamos estabelecendo uma conexão entre o programa e um arquivo específico armazenado no sistema de arquivos. A conexão permite que o programa acesse e manipule o conteúdo do arquivo. A manipulação pode ser em termos de escrita e de leitura.
+A função fopen é utilizada para abrir arquivos
+    FILE* fopen (const char *filename, const char *mode)
+Ela define dois parâmetros: fliname e mode. Filename é uma string que contém o nome do arquivo a ser aberto, incluindo o caminho até ele se necessário. Já mode indica o modo de abertura.
+Modos de abertura indicam as operações que podem ser executadas no arquivo e a localização dos ponteiros de leitura e escrita em relação aos dados existentes. Modos são: leitura, escrita e concatenação.
+    READ (r) - utilizado para abrir um arquivo expclusivamente para leitura. Se o arquivo não existe, fopen retorna um ponteiro nulo.
+    WRITE (w) -  abre exclusivamente para escrita. Quando o arquivo não existe, fopen cria o arquivo e retorna seu ponteiro.
+    APPEND (a) - modo de concatenação, utilizado para abrir um arquivo e concatenar dados (escrita no final do arquivo).
+    "+" (pós modo de abertura) - nesses casos, independentemente do modo, o arquivo é aberto para leitura e escrita.
+        r+ - o conteúdo é preservado; ponteiros são alocados no início do arquivo.
+        w+ - o conteúdo é apagado, ponteiros alocados ao início do arquivo
+        a+ - o conteúdo existente é preservado, ponteiro de leitura é alocado no início do arquivo, e o de escrita  no final do arquivo.
+Após manipular arquivo, fechar utilizando fclose
+    int fclose (FILE* stream)
+Retorna 0 caso o fechamento seja bem sucedido.
+O fechamento libera os recursos alocados para os processos e esvazia os buffers.
+Ponteiro FILE* aponta para uma estrutura(struct) que contém informações como 
+    Nome do arquivo;
+    Modo de abertura;
+    Posição atual do ponteiro de leitura;
+    Posição atual do ponteiro de gravação;
+
+--ESCRITA EM ARQUIVOS--
+Operações de escrita permitem adicionar dados em arquivos, a adição se dá byte a byte a partir do endereço apontado pelo ponteiro de escrita de um arquivo aberto.
+Existem duas categorias: simples e formatada.
+
+--ESCRITA SIMPLES EM ARQUIVOS--
+fputc permite escrever em um único byte de um arquivo especificado.
+    int fputc (int c, FILE* s)
+possui dois parâmetros: inteiro c que representa o byte a ser gravado, e o stream s, indicando em qual arquivo o byte deve ser gravado. Em caso de sucesso, a função retorna o próprio bytre escrito.
+    Opção via macro: int putc(int c, FILE* s)
+    Opção para o stream stdout: int putchar(int c).
+Em arquivos de texto, uma operação bastante conveniente é a escrita de strings, em vez de escrever caracteres individualmente. A função fputs disponibiliza essa funcionalidade
+    int fputs(const char *str, FILE* s)
+fputs recebe a string str a ser escrita e o stream s que indica o arquivo onde a string será escrita. Retorna valor positivo caso sucesso.
+    Opção para stream stdout: int puts(const char *str)
+
+--ESCRITA FORMATADA EM ARQUIVOS--
+fprintf, no entanto, permita a escrita de arquivos seguindo um padrão de formatação
+    int fprintf (FILE* s, const char* f, ...)
+fprint possui n parâmetros, um stream s, string f determinando formato de gravação, e os dados a serem inseridos nas posições previstas no formato. Em caso de sucesso, a função retorna o número de bytes escritos no arquivo
+    Opção para string: int sprintf(char* str, const char*f, ...)
+    Opção para o strem stdout: int printf(const char* f, ...)
+
+--LEITURA DE ARQUIVOS--
+Ler um arquivo é recuperar dados de um arquivo previamente aberto.
+Categorizadas em leituras simples e formatadas.
+
+-LEITURA SIMPLES EM ARQUIVOS--
+    int fgetc(FILE* s)
+fgetc possui apenas um parâmetro: stream s, indicando qual arquivo o byte deve ser lido. Em caso de sucesso retorna o byte.
+    Opção via macro: int getc(FILE* s)
+    Opção via strem stdin: int getchar()
+A função gets é destinada a  ler uma string do stdin ae encontrar uma nova linha (\n), descratando o caractere de nova linha e armazenando os dados na string str fornecida como argumento.
+    char* gets (char *str)
+        !gets não sabe o tamanho do buffer
+Uma função alternativa ade leitura de linhas de arquivos para strings foi implementada:
+    char* fgets (char *str, int c, FILE* s)
+Um limite de caracteres liddos é definido para c-1, e o caractere de fim de linha é incluido na leitura de uma linha qualquer, lida do stream s e armazenada na string str.
+
+--LEITURA FORMATADA DE ARQUIVOS--
+fscanf oferece a leitura de arquivos seguindo um padrão de formatação 
+    int fscanf (FILE* s, const char* f, ...)
+Possui n parâmetros: stream s, string f determinando o formato de leitura, e as variáveis onde os dados devem ser inseridos considerando as posições previstas no formato.
+
+--FIM DO ARQUIVO--
+Como identificar o fim de um arquivo?
+A linguagem C, oferece recursos para identificar e lidar com o final de um arquivo, e um dos mais comuns é a função feof(found end of file)
+    int feof(FILE *stream)
+feof  retorna 0 se o fim do arquivo não foi alcançado;
+Retorna != 0 se o fim foi alcançado;
+Outra opção para verificar o fim de um arquivo é verificar a constantop EOF (End Of File), retornada por funções como getchar e fgetc. 
+É possível verificar se ocorreu algum erro na última operação realizada em uma stream de arquivo usando a função ferror. Retorna 0 se nenhuma ocorrência de erro foi registrada.
+    int ferror (FILE* strem)
