@@ -1,0 +1,51 @@
+--ARQUIVOS BINÁRIOS--
+Pode-se compreender um arquivo como binário quando contempla dados não textuais (não seguem uma tabela de codificação).
+Arquivos contendo: imagens, músicas, texto formatado e binários = arquivos binários;
+Podemos entender um arquivo binário como uma sequência de blocos de dados de mesmo tamanho, o tamanho dos blocos dependem do tipo de informação persistida no arquivo, definindo o "passo" de leitura.
+Sistema Operacional compreende qualquer tipo de informação como uma sequência de bytes. Tudo é lido e escrito como uma sequência de bytes no arquivo.
+
+--MANIPULAÇÃO DE ARQUIVOS BINÁRIOS--
+Existem funções específicas para realizar a leitura e escrita dos arquivos binários
+    size_t fread (void* data, size_t size, size_t count, FILE* stream)
+    size_t fwrite (const void* data, size_t size, size_t count, FILE* stream)
+Essas funções operam através da ideia de blocos de dados, sendo que um determinado bloco é definido pelo número de bytes que o compõem.
+A função fread é destinada à leitura de blocos de dados de um arquivo binário. Essa função define quatro parâmetros
+    data: buffer que armazena blocos lidos de um arquivo
+    size: tamanho do bloco de dados, em bytes
+    count: quantidade de blocos de dados a serem lidos
+    stream: arquivo de origem dos blocos a serem lidos
+Retorno consiste na quantidade de blocos lidos com sucesso
+fwrite destina-se à escrita de blocos.
+    data: buffer que armazena blocos a serem escritos no arquivo
+    size: tamanho do bloco em bytes
+    count: quantidade de blocos de dados a serem escritos
+    stream: arquivo de destino dos blocos a serem escritos
+Retorno consiste na quantidade de blocos escritos com sucesso.
+Para todo arquivo aberto, o SO mantém um ponteiro guardando a posição na qual será realizada a próxima operação de arquivo.
+Por default, operações de arquivo sempre avançam seu respectivo ponteiro, realizando um acesso sequencial.
+Para realizar acesso a posições aleatórias de um arquivo, existem funções específicas
+    int fseek (FILE* stream, long int offset, int whence)
+        void rewind (FILE* stream)
+        long int ftell (FILE* stream)
+Todas as posições se dão em termos dos bytes de um arquivo, não de blocos.
+A função de reposicionamento do ponteiro é chamada fseek, prevê 3 parâmetros.
+    stream: arquivo em que se deseja mover o ponteiro
+    offset: tamanho do deslocamento em número de B
+    whence: parâmetro para aplicação de deslocamento (SEEK_SET, SEEK_END, SEEK_CUR)
+A função rewind é específica para movimentação do ponteiro para o início do arquivo.
+A função ftell indica a posição corrente do ponteiro do arquivo.
+Existem outras funções de manipulação
+    int truncate (const char *path, off_t lenght)
+    int ftruncate (int fd, off_t lenght)
+Funções truncate removem dados de um arquivo, truncate não precisa abrir o arquivo, ftruncate precisa. Mantém apenas os primeiros lenght B.
+Outras funções são
+    int stat (const char *pathname, struct stat *statbuf)
+    int fstat (int fd, struct stat *statbuf)
+Funções stat escrevem uma estrutura de informações sobre um arquivo.
+Estrutura stat - O número de informações é grande
+struct stat {
+    dev_t st_dev;
+    mode_t st_mode
+    struct timespec st_atim
+    ...
+}
