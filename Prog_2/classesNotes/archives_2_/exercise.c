@@ -10,3 +10,49 @@ requisito para apresentar o resultado:
     ○ Nenhuma palavra terá mais do que 100 caracteres
     ○ Não se preocupe com pontuações
 */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int main () {
+    FILE *arquivo = fopen("archiveForExercise", "r");
+    if (!arquivo)
+        return 1;
+
+    char palavras[1000][101], palavra[101];
+    int contagem[1000], total = 0;
+
+    while (fscanf(arquivo, "%100s", palavra) == 1){
+        int encontrada = 0;
+
+        for (int i = 0; i < total; i++) {
+            if (strcmp(palavras[i], palavra) == 0){
+                contagem[i]++;
+                encontrada = 1;
+                break;
+            }
+        }
+
+        if (!encontrada) {
+            strcpy(palavras[total], palavra);
+            contagem[total] = 1;
+            total++;
+        }
+    }
+
+    fclose(arquivo);
+
+    int max = 0, indice = 0;
+
+    for (int i = 0; i < total; i++) {
+        if (contagem[i] > max) {
+            max = contagem[i];
+            indice = i;
+        }
+    }
+
+    printf("Palavra mais frequente: %s (%d vezes)\n", palavras[indice], max);
+
+    return 0;
+}
