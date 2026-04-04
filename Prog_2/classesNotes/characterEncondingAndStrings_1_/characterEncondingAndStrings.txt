@@ -34,3 +34,45 @@ One of them was the Unicode pattern. It has an enormous quantity of characters, 
 	UTF-32 (32-bit Unicode Transformation Format): 4 bytes per character;
 The most used one is UTF-8. But, why?
 	->Because of its adjustable size coding
+
+--A CODIFICAÇÃO UTF-8--
+Um caractere é sempre codificado utilizando o menor número de bytes possível.
+Paraa indicar a quantidade de bits sendo usada é utilizado uma máscara de codificação.
+
+--CONCEITO DE STRING--
+Sequências de caracteres utilizadas para definir informações textuais.
+Em C: vetor de caracteres (vetor de char)
+O final de uma string é identificada por um caractere nulo ('\0'). Logo, se uma string tem 50 caracteres o vetor deve ter pelo menos 51 posições.
+
+--STRINGS CONSTANTES--
+Strigs constantes são sequências de caracteres entre aspas ("").
+Há maneiras de definir strings constantes, como referencia-las por ponteiros.
+
+--ESCRITA DE STRINGS--
+Para printar uma string, é necessário usar o indicador "%s", e depois passar o ponteiro para a string.
+É possível escrever através da função puts também. 
+
+--LEITURA DE STRINGS--
+Pode-se utilizar o scanf para ler uma string.
+	char string[101];
+	scanf("%s", string);
+		ou
+	scanf("%20s", string); //A leitura é realizada até: um espaço, tabulação, fim de linha, ou até 20 caracteres
+		ou
+	scanf("%[A-Za-z0-9]", string); //A leitura é realizada até: um espaço, tabulação, fim de linha. apenas caracteres alfanuméricos considerados
+		ou
+	scanf("%[^\n]", nome); //Todos os caracteres que não são quebra de linha são lidos; a leitura para na quebra de linha (\n fica no buffer). Utilizar "getchar()" limpa o buffer	
+
+--MANIPULAÇÃO DE STRINGS--
+Existem bibliotecas para manipular strings (string.h).
+	strlen - recebe o ponteiro para uma string como argumento, retorna a quantidade de caracteres dela (sem contar \0)
+	strcpy - recebe, em ordem, o ponteiro para onde a string deve ser copiada (vetor de char) e o ponteiro para a string base; retorna o ponteiro da string copiada
+	strncpy - funciona igual strcpy, porém recebe um terceiro argumento que indica quantos caracteres devem ser copiados no máximo
+	strcat - recebe dois ponteiros para strings, sendo que a segunda deve ser concatenada na primeira. retorna o ponteiro para a string copiada
+	strncat- funciona igual strcat. Porém, recebe o terceiro argumento inteiro que indica quantos caracteres devem ser concatenados
+	strchr - recebe um ponteiro para string e um caractere qualquer; retorna o ponteiro para a primeira ocorrência do caractere na string fornecida, se não houver, retorna null
+	strrchr - recebe um ponteiro para string e um caractere qualquer; retorna o ponteiro p/ última ocorrência do caractere na string fornecida ou NULL se não houver
+	strstr - recebe um ponteiro para uma string base e um para uma substring; retorna o ponteiro para a primeira ocorrência da substring na string fornecida ou NULL se não houver
+	strdup - recebe um ponteiro p/ uma string e duplica a mesma, alocando a memória necessária.
+	strtok - recebe um ponteiro p/ uma string base e um p/ uma string separadora; retorna o ponteiro p a primeira ocorrencia de um caractere na string base antes/após a substring fornecida ou NULL se não houver.
+	
