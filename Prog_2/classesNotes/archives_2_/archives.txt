@@ -69,13 +69,13 @@ Categorizadas em leituras simples e formatadas.
     int fgetc(FILE* s)
 fgetc possui apenas um parâmetro: stream s, indicando qual arquivo o byte deve ser lido. Em caso de sucesso retorna o byte.
     Opção via macro: int getc(FILE* s)
-    Opção via strem stdin: int getchar()
-A função gets é destinada a  ler uma string do stdin ae encontrar uma nova linha (\n), descratando o caractere de nova linha e armazenando os dados na string str fornecida como argumento.
+    Opção via stream stdin: int getchar()
+A função gets é destinada a  ler uma string do stdin e encontrar uma nova linha (\n), descartando o caractere de nova linha e armazenando os dados na string str fornecida como argumento.
     char* gets (char *str)
         !gets não sabe o tamanho do buffer
 Uma função alternativa ade leitura de linhas de arquivos para strings foi implementada:
     char* fgets (char *str, int c, FILE* s)
-Um limite de caracteres liddos é definido para c-1, e o caractere de fim de linha é incluido na leitura de uma linha qualquer, lida do stream s e armazenada na string str.
+Um limite de caracteres lidos é definido para c-1, e o caractere de fim de linha é incluido na leitura de uma linha qualquer, lida do stream s e armazenada na string str.
 
 --LEITURA FORMATADA DE ARQUIVOS--
 fscanf oferece a leitura de arquivos seguindo um padrão de formatação 
@@ -88,6 +88,6 @@ A linguagem C, oferece recursos para identificar e lidar com o final de um arqui
     int feof(FILE *stream)
 feof  retorna 0 se o fim do arquivo não foi alcançado;
 Retorna != 0 se o fim foi alcançado;
-Outra opção para verificar o fim de um arquivo é verificar a constantop EOF (End Of File), retornada por funções como getchar e fgetc. 
+Outra opção para verificar o fim de um arquivo é verificar a constante EOF (End Of File), retornada por funções como getchar e fgetc. 
 É possível verificar se ocorreu algum erro na última operação realizada em uma stream de arquivo usando a função ferror. Retorna 0 se nenhuma ocorrência de erro foi registrada.
     int ferror (FILE* strem)
