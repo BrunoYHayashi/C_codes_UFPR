@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include "investimento.h"
 
 typedef struct {
     double capital_inicial;
@@ -7,13 +10,13 @@ typedef struct {
     int ano_fim;
     int janela;
     char **arquivos;
-    int num_arquivos
+    int num_arquivos;
 } Config;
 
 int main(int argc, char *argv[]) {
     //Cria e inicializa struct com valores padrão
     Config cfg;
-    cfg.capital_inicial = 0.0;
+    cfg.capital_inicial = -1.0;
     cfg.ano_inicio = 2000;
     cfg.ano_fim = 2025;
     cfg.janela = 0;
@@ -25,11 +28,11 @@ int main(int argc, char *argv[]) {
     //Loop para percorrer argv
     for (int i=1; i < argc; i++) {
         if (strcmp(argv[i], "-c") == 0 && (i + 1 < argc)) {
-            cfg.capital_inicial = atof(argv[i++]);
+            cfg.capital_inicial = atof(argv[++i]);
         }
 
         else if (strcmp(argv[i], "-i") == 0 && (i + 1 < argc)) {
-            cfg.ano_inicio = atoi(argv[i++]);
+            cfg.ano_inicio = atoi(argv[++i]);
         }
 
         else if (strcmp(argv[i], "-f") == 0 && (i + 1 < argc)) {
@@ -76,6 +79,28 @@ int main(int argc, char *argv[]) {
             return 1;
         }
     }
+
+    printf("----------------------------------------\n");
+    printf("Período: Janeiro %d a Dezembro %d\n", cfg.ano_inicio, cfg.ano_fim);
+    printf("Capital Inicial: R$ %.2f\n", cfg.capital_inicial);
+
+    for (int i = 0; i < cfg.num_arquivos; i++) {
+        Investimento *inv = carregar_investimento(cfg.arquivos[i]);
+
+        if (inv ==  NULL){
+            fprintf(stderr, "Erro ao abrir arquivo: %s\n", cfg.arquivos[i]);
+            continue; //se der certo, vai p̣/ o próximo arquivo
+        }
+
+        double valor_final = calcular_rendimento(inv, cfg.capital_inicial, cfg.ano_inicio, cfg.ano_fim);
+
+        //imprime resultado investimento anual
+        printf("%s: R$ %.2f\n", inv->nome, valor_final);
+
+        liberar_investimento(inv);
+    }
+
+    printf("----------------------------------------\n");
 
     //TESTE 
     printf("Capital: %.2f | Inicio: %d | Fim: %d | Janela: %d\n", 
