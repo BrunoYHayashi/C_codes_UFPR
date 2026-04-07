@@ -19,7 +19,7 @@ COMO COMPILAR
 
 ALGORITMOS E ESTRUTURAS DE DADOS
   >Estruturas: 
-    -Registro: dados 'individuais, mês/ano/valor 
+    -Registro: dados 'individuais', mês/ano/valor 
     -Investimento: vetor dinâmico de registros e dados
     -Config: centraliza parâmetros de execução
   >Alocação Realloc:
