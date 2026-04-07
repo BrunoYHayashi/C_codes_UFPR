@@ -7,18 +7,19 @@
 
 //Função para converter nome do mês para número
 int mes_para_int(char *s) {
-    if (strncasecmp(s, "jan", 3) == 0) return 1; 
-    if (strncasecmp(s, "fev", 3) == 0) return 2; 
-    if (strncasecmp(s, "mar", 3) == 0) return 3; 
-    if (strncasecmp(s, "abr", 3) == 0) return 4; 
-    if (strncasecmp(s, "mai", 3) == 0) return 5; 
-    if (strncasecmp(s, "jun", 3) == 0) return 6; 
-    if (strncasecmp(s, "jul", 3) == 0) return 7; 
-    if (strncasecmp(s, "ago", 3) == 0) return 8; 
-    if (strncasecmp(s, "set", 3) == 0) return 9; 
-    if (strncasecmp(s, "out", 3) == 0) return 10; 
-    if (strncasecmp(s, "nov", 3) == 0) return 11; 
-    if (strncasecmp(s, "dez", 3) == 0) return 12; 
+
+    if (strncmp(s, "jan", 3) == 0) return 1; 
+    if (strncmp(s, "fev", 3) == 0) return 2; 
+    if (strncmp(s, "mar", 3) == 0) return 3; 
+    if (strncmp(s, "abr", 3) == 0) return 4; 
+    if (strncmp(s, "mai", 3) == 0) return 5; 
+    if (strncmp(s, "jun", 3) == 0) return 6; 
+    if (strncmp(s, "jul", 3) == 0) return 7; 
+    if (strncmp(s, "ago", 3) == 0) return 8; 
+    if (strncmp(s, "set", 3) == 0) return 9; 
+    if (strncmp(s, "out", 3) == 0) return 10; 
+    if (strncmp(s, "nov", 3) == 0) return 11; 
+    if (strncmp(s, "dez", 3) == 0) return 12; 
     return 0;
 }
 
