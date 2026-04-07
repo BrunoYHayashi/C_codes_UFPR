@@ -1,10 +1,42 @@
-Bruno Yuuki Hayashi
-GRR: 20253206
+Nome: Bruno Yuuki Hayashi
+GRR:  20253206
 
-Lista de arquivos:
+LISTA DE ARQUIVOS E DIRETÓRIOS
+  /bin: diretório para o executável.
+  /src: arquivos fonte e Makefile
+    -juros.c: Main
+    -investimento.h, investimento.c: Calculos financeiros e leituras de dados
+    -config.h, config.c: Processamento de argumentos e validação de parâmetros
+    -Makefile: regras de compilação
+  LEIAME: este arquivo de documentação
 
-Instruções de como compilar:
+COMO COMPILAR
+  -Acessar o diretório src/
+  -Executar o comando: make tudo (ou make teste para testar mem_leak)
+  -Executável "juros" é gerado em ../bin/
+  -Limpar arquivos temporários: make limpa
+  -Remover tudo: make faxina
 
-Descrição dos algoritmos e structs:
+ALGORITMOS E ESTRUTURAS DE DADOS
+  >Estruturas: 
+    -Registro: dados 'individuais, mês/ano/valor 
+    -Investimento: vetor dinâmico de registros e dados
+    -Config: centraliza parâmetros de execução
+  >Alocação Realloc:
+    -Optei pelo uso de realloc para que o programa suportasse históricos de qualquer tamanho sem limites fixos de memória.
+  >Lógicas:
+    -Inversão de vetor: arquivos vinham em ordem decrescente; para garantir que o cálculo de juros fosse fácil e simples, deixei os vetores em ordem cronológica.
+    -Conversão de Taxa: utilizada pow(1 + taxa, 1/12) - 1; para converter as taxas anuais em mensais.
+    -Janelas móveis: Utiliza um "mês relativo" a partir do ano base, permitindo que janelas sejam sobrepostas mês a mês.
 
-Bugs conhecidos:
+DIFICULDADES ENCONTRADAS
+  >Tratamento de strings: Conseguir pegar corretamente Mês, ano e valor, e posteriormente converter: mês para int e substituir vírgulas por pontos; Utilizado sscanf e busca de caractéres específicos para conseguir fazer isso.
+  >Lógica de janelas  móveis sobrepostas: Implementar a comparação por janelas de forma que elas "deslizassem" mês a mês (sobrepuserem uma a outra), e não saltadas. Para isso, foi feito um algoritmo que
+    -Transformava cada registro de data (Mês e ano) em um índice absoluto ao ano de início, exemplo:
+      Jan/20 = mês 0; Fev/20 = mês 1
+    -Dessa forma, foi possível criar um laço que percorresse cada mês do período total, como o início de uma nova janela de tamanho w.
+    -Em cada janela, o capital resetava para garantir que a comparação fosse baseada apenas no rendimento percentual do intervalo solicitado.
+    -Assim, investimentos com arquivos de tamanhos diferentes puderam ser comparados justamente.
+    
+BUGS CONHECIDOS
+  >Nenhum bug conhecido. Gerenciamento de memória e fechamento de arquivos validado via Valgrind.
