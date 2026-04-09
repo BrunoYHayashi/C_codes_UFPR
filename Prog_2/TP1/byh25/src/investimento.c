@@ -250,7 +250,9 @@ void processar_janelas(Investimento **lista, int num_inv, Config *cfg) {
         //Remove a extensão para imprimir o nome limpo
         char nome[100];
         strcpy(nome, lista[i]->nome);
-        char *p = strchr(nome, '.'); if (p) *p = '\0';
+        char *p = strchr(nome, '.'); 
+        if (p) 
+            *p = '\0';
         printf("%s: %d janelas\n", nome, vitorias[i]);
     }
     printf("----------------------------------------\n");
@@ -262,8 +264,117 @@ void executar_programa_juros(Config *cfg) {
 
     if (cfg->janela == 0)
         exibir_relatorio_total(lista, carregados, cfg);
+    else if (cfg->escritaEnable)
+        processar_janelas_escrita(lista, carregados, cfg);
     else
         processar_janelas(lista, carregados, cfg);
 
     liberar_lista_investimentos(lista, carregados);
+}
+
+double calcular_janela_especifica_escrita(Investimento *inv, double capital, int ano_base, int mes_offset, int tam_janela, FILE* f){
+    double cap_atual = capital;
+    double cot_ini = -1.0;
+    int meses_contados = 0;
+
+    for (int i = 0; i < inv->num_registros; i++) {
+        //Calcula quantos meses este registro está distante do início do período (Jan/ano_base)
+        int m_relativo = (inv->registros[i].ano - ano_base) * 12 + (inv->registros[i].mes - 1);
+
+        if (m_relativo >= mes_offset && m_relativo < (mes_offset + tam_janela)) {
+            if (inv->tipo == 't') {
+                double tx_m = pow(1.0 + inv->registros[i].valor, 1.0/12.0) - 1.0;
+                cap_atual *= (1.0 + tx_m);
+            } else {
+                if (cot_ini < 0) cot_ini = inv->registros[i].valor;
+                cap_atual = (capital / cot_ini) * inv->registros[i].valor;
+            }
+            meses_contados++;
+        }
+    }
+    //Se não encontrou dados suficientes para a janela completa, retorna um valor nulo
+    if (meses_contados < tam_janela) 
+        return -1.0;
+    
+    fprintf(f, "%.2f", cap_atual);
+    fprintf(f, " ");
+    return cap_atual;
+}
+
+void processar_janelas_escrita(Investimento **lista, int num_inv, Config *cfg){
+    FILE* f;
+    char nomeArq[100];
+    strcpy(nomeArq, cfg->escrita[0]);
+    if (!(f = fopen(nomeArq, "w+")))
+        return;
+
+    int vitorias[num_inv];
+    for (int i = 0; i < num_inv; i++) vitorias[i] = 0;
+    int meses_totais = (cfg->ano_fim - cfg->ano_inicio + 1) * 12;
+
+    //Desliza a janela mês a mês (sobrepostas)
+    for (int m = 0; m <= meses_totais - cfg->janela; m++) {
+        int mes_atual = (m % 12) + 1;
+        int ano_atual = (cfg->ano_inicio + (m / 12)) % 100;
+        if(mes_atual == 1) 
+            fprintf(f, "jan./%02d ", ano_atual);
+        else if(mes_atual == 2) 
+            fprintf(f, "fev./%02d ", ano_atual);
+        else if(mes_atual == 3) 
+            fprintf(f, "mar./%02d ", ano_atual);
+        else if(mes_atual == 4) 
+            fprintf(f, "abr./%02d ", ano_atual);
+        else if(mes_atual == 5) 
+            fprintf(f, "mai./%02d ", ano_atual);
+        else if(mes_atual == 6) 
+            fprintf(f, "jun./%02d ", ano_atual);
+        else if(mes_atual == 7) 
+            fprintf(f, "jul./%02d ", ano_atual);
+        else if(mes_atual == 8) 
+            fprintf(f, "ago./%02d ", ano_atual);
+        else if(mes_atual == 9) 
+            fprintf(f, "set./%02d ", ano_atual);
+        else if(mes_atual == 10)
+            fprintf(f, "out./%02d ", ano_atual);
+        else if(mes_atual == 11)
+            fprintf(f, "nov./%02d ", ano_atual);
+        else if(mes_atual == 12)
+            fprintf(f, "dez./%02d ", ano_atual);
+    
+        int vencedor = -1;
+        double melhor_resultado = -1.0;
+        for (int i = 0; i < num_inv; i++) {
+            double res = calcular_janela_especifica_escrita(lista[i], cfg->capital_inicial, cfg->ano_inicio, m, cfg->janela, f);
+            
+            if (res > melhor_resultado) {
+                melhor_resultado = res;
+                vencedor = i;
+            }
+        }
+        if (vencedor != -1) vitorias[vencedor]++;
+        
+        fprintf(f, "\n");
+    }
+
+    fprintf(f, "Resumo:\n");
+    for (int i = 0; i < num_inv; i++) {
+        char nome[100];
+        char *inicio = strrchr(lista[i]->nome, '/');
+        if (inicio) 
+            inicio++; 
+        else 
+        inicio = lista[i]->nome;
+
+        strcpy(nome, inicio);
+
+        char *p = strchr(nome, '.'); 
+        if (p) 
+        *p = '\0';
+        fprintf(f, "%s", nome);
+        fprintf(f, " foi melhor: ");
+        fprintf(f, "%d", vitorias[i]);
+        fprintf(f, " vezes\n");
+    }
+
+    fclose(f);
 }

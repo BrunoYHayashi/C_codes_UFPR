@@ -36,11 +36,6 @@ void validar_config(Config *cfg) {
             liberar_config(cfg);
             exit(1);
         }
-        if (cfg->janela < 6 || cfg->janela > 12) {
-            fprintf(stderr, "Erro: O tamanho da janela (-w) deve ser entre 6 e 12 meses.\n");
-            liberar_config(cfg);
-            exit(1);
-        }
     }
 }
 
@@ -50,8 +45,10 @@ Config* processar_argumentos(int argc, char *argv[], Config *cfg){
     cfg->ano_fim = 2025;
     cfg->janela = 0;
     cfg->num_arquivos = 0;
+    cfg->escritaEnable = 0;
 
     cfg->arquivos = alocar_lista_arquivos(argc);
+    cfg->escrita = alocar_lista_arquivos(argc);
 
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-c") == 0 && (i + 1 < argc)) {
@@ -61,8 +58,12 @@ Config* processar_argumentos(int argc, char *argv[], Config *cfg){
         } else if (strcmp(argv[i], "-f") == 0 && (i + 1 < argc)) {
             cfg->ano_fim = atoi(argv[++i]);
         } else if (strcmp(argv[i], "-w") == 0 && (i + 1 < argc)) {
-            cfg->janela = atoi(argv[++i]);
-        } else {
+            cfg->janela = atoi(argv[++i]);   
+        } else if (strcmp(argv[i], "-a") == 0 && (i + 1 < argc)) {
+            cfg->escrita[0] = argv[++i];   
+            cfg->escritaEnable = 1;
+        }
+        else {
             cfg->arquivos[cfg->num_arquivos++] = argv[i];
         }
     }

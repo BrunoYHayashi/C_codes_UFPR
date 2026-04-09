@@ -63,4 +63,7 @@ void processar_janelas(Investimento **lista, int num_inv, Config *cfg);
 void executar_programa_juros(Config *cfg);
 //================================================================================
 
+double calcular_janela_especifica_escrita(Investimento *inv, double capital, int ano_base, int mes_offset, int tam_janela, FILE* f);
+
+void processar_janelas_escrita(Investimento **lista, int num_inv, Config *cfg);
 #endif

@@ -8,6 +8,8 @@ typedef struct {
     int janela;
     char **arquivos;
     int num_arquivos;
+    int escritaEnable;
+    char **escrita;
 } Config;
 
 //
