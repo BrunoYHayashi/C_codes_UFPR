@@ -340,6 +340,48 @@ void processar_janelas_escrita(Investimento **lista, int num_inv, Config *cfg){
             fprintf(f, "nov./%02d ", ano_atual);
         else if(mes_atual == 12)
             fprintf(f, "dez./%02d ", ano_atual);
+
+        int mes_final;
+        int ano_final;
+        mes_final = mes_atual + cfg->janela -1;
+        if (mes_final > 12){
+            if (mes_final % 12 != 0){
+                int j = (mes_final/12);
+                mes_final = mes_final - (12*j) ;
+                ano_final = ano_atual + j;
+            }
+            else{
+                int j = (mes_final/12) -1;
+                mes_final = mes_final - (12*j);
+                ano_final = ano_atual +j;
+            }
+
+        }
+
+        if(mes_final == 1) 
+            fprintf(f, "jan./%02d ", ano_final);
+        else if(mes_final == 2) 
+            fprintf(f, "fev./%02d ", ano_final);
+        else if(mes_final == 3) 
+            fprintf(f, "mar./%02d ", ano_final);
+        else if(mes_final == 4) 
+            fprintf(f, "abr./%02d ", ano_final);
+        else if(mes_final == 5) 
+            fprintf(f, "mai./%02d ", ano_final);
+        else if(mes_final == 6) 
+            fprintf(f, "jun./%02d ", ano_final);
+        else if(mes_final == 7) 
+            fprintf(f, "jul./%02d ", ano_final);
+        else if(mes_final == 8) 
+            fprintf(f, "ago./%02d ", ano_final);
+        else if(mes_final == 9) 
+            fprintf(f, "set./%02d ", ano_final);
+        else if(mes_final == 10)
+            fprintf(f, "out./%02d ", ano_final);
+        else if(mes_final == 11)
+            fprintf(f, "nov./%02d ", ano_final);
+        else if(mes_final == 12)
+            fprintf(f, "dez./%02d ", ano_final);
     
         int vencedor = -1;
         double melhor_resultado = -1.0;
@@ -351,6 +393,7 @@ void processar_janelas_escrita(Investimento **lista, int num_inv, Config *cfg){
                 vencedor = i;
             }
         }
+
         if (vencedor != -1) vitorias[vencedor]++;
         
         fprintf(f, "\n");
