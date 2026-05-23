@@ -1,0 +1,22 @@
+--FUNÇÃO MAIN--
+É o ponto de entrada de um programa escrito em C.
+A partir dela um programa será executado.
+Função main permite a definição de argumentos
+    argc: valor inteiro, indica quantidade de argumetnos providos pelo usuário;
+    argv: ponteiro de ponteiros (matriz), provê cada um dos argumentos como strings;
+    envp: ponteiro de ponteiros (matriz), contém as variáveis de ambiente disponíveis no sistema
+
+--ARGUMENTOS DA MAIN--
+argc nunca é menor que um; 
+argv nunca tem menos que um elemento;
+envp sempre terá pelo menos uma posição (apontando nulo);
+Cada registro de variável de ambiente no envp é dado como: nome=valor;
+É possível definir argc sem argv e envp, além de argc e argv sem envp;
+Apesar de ser possível criar um laço para iterar sobre as opções providas através do argv utilizando argc (as tradicionais usando "-"), existem funções prontas para realizar tal tarefa
+    getopt
+        ->pertence a biblioteca unistd
+    
+--A FUNÇÃO GETOPT--
+A função getopt é simples, conta com apenas três argumentos retorna um inteiro.
+    int getopt(int argc, char *const argv[], const char *opstring)
+Os primeiros dois argumentos correspondem aos próprios argumentos da função main (argc e argv). O último argumento representa a formatação esperada para as opções disponíveis.

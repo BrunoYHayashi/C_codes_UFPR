@@ -1,0 +1,85 @@
+Bruno Yuuki Hayashi
+GRR20253206
+
+ARQUIVOS E DIRETORIOS
+./LEIAME            - este arquivo
+./bin/              - executavel gerado apos compilacao
+./bin/objeto        - programa principal
+./src/Makefile      - regras de compilacao
+./src/objetos.c     - modulo principal (contem main)
+./src/pgm.c         - leitura e escrita de imagens PGM/PPM
+./src/pgm.h         - interface do modulo pgm
+./src/deteccao.c    - algoritmos de deteccao de objetos
+./src/deteccao.h    - interface do modulo de deteccao
+
+COMPILACAO
+  make tudo
+
+O executavel sera gerado em bin/objeto.
+
+Para limpar arquivos temporarios:
+  make limpa
+
+Para limpar tudo (inclusive o executavel):
+  make faxina
+
+EXECUCAO
+./bin/objeto -i entrada.pgm -o saida.ppm [-a maiores.pgm]
+
+  -i  imagem de entrada (formato PGM P2 ou P5)
+  -o  imagem de saida com objetos coloridos (formato PPM P6)
+  -a  (opcional) imagem com os 3 maiores objetos lado a lado (PGM P5)
+
+Exemplo:
+    ./bin/objeto -i figura.pgm -o resultado.ppm -a top3.pgm
+
+ALGORITMOS E ESTRUTURAS DE DADOS
+Leitura do PGM
+O modulo pgm.c le os formatos P2 (ASCII) e P5 (binario). O cabecalho e
+lido linha a linha, ignorando comentarios (linhas com '#'). Os pixels
+sao armazenados em um vetor simples de unsigned char (uma dimensao),
+indexado como pixels[linha * largura + coluna].
+
+Deteccao de objetos
+A deteccao varre a imagem de cima para baixo, da esquerda para a direita.
+Ao encontrar um pixel nao visitado com valor abaixo do limiar (128),
+inicia-se um BFS (busca em largura) para marcar todos os pixels
+conectados (vizinhanca-4) como pertencentes ao mesmo objeto.
+
+A fila É implementada como vetor simples pre-alocado com tamanho
+igual ao total de pixels, evitando realocacoes. O array de rotulos
+(int *rotulo) mapeia cada pixel ao numero do objeto ao qual pertence
+(0 = fundo branco).
+
+Estrutura Objeto: armazena id, posicao (x, y) do primeiro pixel
+detectado, area em pixels e indice de cor.
+
+Imagem de saida colorida (PPM P6)
+Cada objeto recebe uma cor RGB ciclicamente de um conjunto de 8 cores
+predefinidas.
+
+Tres maiores objetos
+Os objetos sao ordenados por area (qsort, ordem decrescente). Para cada
+um dos 3 maiores, calcula-se o bounding box e copia-se os pixels para
+uma nova imagem PGM, lado a lado com margem de 5 pixels entre eles.
+
+Listagem ordenada
+Usa qsort com comparador de area decrescente sobre uma copia do array
+de objetos, preservando a ordem original.
+
+ALTERNATIVAS CONSIDERADAS
+- DFS (pilha recursiva): descartada pois imagens grandes causaram
+  estouro de pilha.
+- Imagem de saida em PGM (tons de cinza): o enunciado mostra cores
+  diferentes por objeto, portanto foi usado PPM (RGB).
+
+DIFICULDADES
+- Formato P2 (ASCII): leitura com fscanf e mais lenta, mas funcional.
+- Imagens com MAXVAL > 255 (2 bytes): tratadas com normalizacao para
+  8 bits na leitura.
+
+BUGS CONHECIDOS
+- O limite de MAX_OBJETOS (10000) e suficiente para imagens tipicas;
+  imagens com mais objetos emitirao um aviso e processarao apenas os
+  primeiros 10000.
+
