@@ -1,0 +1,301 @@
+--------------------------------------------------------------------------------
+CENÁRIO 1: Filtro de Ruído por Área (Descartar Objetos Muito Pequenos)
+--------------------------------------------------------------------------------
+DESCRIÇÃO:
+Imagens reais digitalizadas costumam vir com pequenos pontos pretos isolados (ruído). 
+O professor pede para criar uma função que receba um limite de área (ex: 15 pixels) 
+e apague da matriz de rótulos e do array de objetos qualquer componente menor que isso,
+atualizando o contador total de objetos.
+
+ALTERAÇÕES NO CÓDIGO:
+
+1. Em 'deteccao.h' (Adicionar o protótipo):
+void filtrar_ruido(int *rotulo, Objeto *objetos, int *n_objetos, int area_minima, int largura, int altura);
+
+2. Em 'deteccao.c' (Implementar no final do arquivo):
+void filtrar_ruido(int *rotulo, Objeto *objetos, int *n_objetos, int area_minima, int largura, int altura)
+{
+    int n_validos = 0;
+    int total_pixels = largura * altura;
+
+    // Array para remapear IDs antigos para a nova sequência compactada
+    int mapa[MAX_OBJETOS + 1];
+    mapa[0] = 0; // Fundo continua sendo zero
+
+    for (int i = 0; i < *n_objetos; i++) {
+        if (objetos[i].area >= area_minima) {
+            n_validos++;
+            mapa[objetos[i].id] = n_validos;
+            
+            // Compacta o array de objetos mantendo apenas os válidos
+            objetos[n_validos - 1] = objetos[i];
+            objetos[n_validos - 1].id = n_validos; // Atualiza ID para 1-based sequencial
+        } else {
+            mapa[objetos[i].id] = 0; // Componente vira fundo (branco)
+        }
+    }
+
+    // Atualiza todos os pixels da matriz de rótulos com o novo mapeamento
+    for (int i = 0; i < total_pixels; i++) {
+        rotulo[i] = mapa[rotulo[i]];
+    }
+
+    // Atualiza a variável do main por referência
+    *n_objetos = n_validos;
+}
+
+3. No 'main.c' (Como chamar):
+Chame logo após a execução da BFS:
+    int n = detectar_objetos(entrada, rotulo, objetos);
+    
+    // Filtra e remove objetos que possuam menos de 15 pixels
+    filtrar_ruido(rotulo, objetos, &n, 15, entrada->largura, entrada->altura);
+
+
+--------------------------------------------------------------------------------
+CENÁRIO 2: Destacar o Maior Objeto com Bounding Box na Imagem PPM de Saída
+--------------------------------------------------------------------------------
+DESCRIÇÃO:
+O professor pede para alterar a imagem colorida final (PPM) para desenhar uma borda/caixa
+delimitadora (retângulo) na cor vermelha pura ao redor do MAIOR objeto detectado na cena.
+
+ALTERAÇÕES NO CÓDIGO:
+
+Esta modificação altera a função existente 'gerar_saida_colorida' em 'deteccao.c'.
+
+1. Em 'deteccao.c' (Substituir a função 'gerar_saida_colorida'):
+void gerar_saida_colorida(const ImagemPGM *entrada, const int *rotulo, const Objeto *objetos, int n_objetos, const char *arquivo_saida)
+{
+    int lin = entrada->altura;
+    int col = entrada->largura;
+
+    FILE *fp = fopen(arquivo_saida, "wb");
+    if (!fp) {
+        fprintf(stderr, "Erro: nao foi possivel criar '%s'\n", arquivo_saida);
+        return;
+    }
+
+    // Encontra o índice do maior objeto
+    int idx_maior = 0;
+    for (int i = 1; i < n_objetos; i++) {
+        if (objetos[i].area > objetos[idx_maior].area) {
+            idx_maior = i;
+        }
+    }
+    int id_alvo = (n_objetos > 0) ? objetos[idx_maior].id : -1;
+
+    // Calcula de forma linear o Bounding Box do maior objeto
+    int min_l = lin, max_l = -1, min_c = col, max_c = -1;
+    if (id_alvo != -1) {
+        for (int l = 0; l < lin; l++) {
+            for (int c = 0; c < col; c++) {
+                if (rotulo[l * col + c] == id_alvo) {
+                    if (l < min_l) min_l = l;
+                    if (l > max_l) max_l = l;
+                    if (c < min_c) min_c = c;
+                    if (c > max_c) max_c = c;
+                }
+            }
+        }
+    }
+
+    fprintf(fp, "P6\n%d %d\n255\n", col, lin);
+
+    for (int l = 0; l < lin; l++) {
+        for (int c = 0; c < col; c++) {
+            int i = l * col + c;
+            int r, g, b;
+
+            // Condição para verificar se o pixel atual está na linha da borda da caixa delimitadora
+            int eh_borda = (id_alvo != -1) && 
+                           (l == min_l || l == max_l || c == min_c || c == max_c) &&
+                           (l >= min_l && l <= max_l && c >= min_c && c <= max_c);
+
+            if (eh_borda) {
+                r = 255; g = 0; b = 0; // Borda Vermelha Pura
+            } else if (rotulo[i] == 0) {
+                r = g = b = 255;       // Fundo Branco
+            } else {
+                int obj_idx = rotulo[i] - 1;
+                int cor_idx = objetos[obj_idx].cor % N_CORES;
+                r = cores[cor_idx][0];
+                g = cores[cor_idx][1];
+                b = cores[cor_idx][2];
+            }
+            fputc(r, fp); fputc(g, fp); fputc(b, fp);
+        }
+    }
+    fclose(fp);
+}
+
+
+--------------------------------------------------------------------------------
+CENÁRIO 3: Algoritmo de Detecção por Vizinhança-8 (Conexões Diagonais)
+--------------------------------------------------------------------------------
+DESCRIÇÃO:
+A especificação padrão pede Vizinhança-4 (cima, baixo, esquerda, direita). O professor 
+solicita uma mudança algorítmica interna na BFS para que pixels encostados na diagonal 
+também passem a pertencer ao mesmo objeto (Vizinhança-8).
+
+ALTERAÇÕES NO CÓDIGO:
+
+Esta modificação altera apenas variáveis internas da função 'detectar_objetos' em 'deteccao.c'.
+
+1. Em 'deteccao.c' (Substituir os vetores e o loop interno da função):
+Modifique os vetores de deslocamento de tamanho 4 para tamanho 8:
+    // Vetores originais + 4 combinações diagonais
+    int dl[] = {-1,  1,  0,  0, -1, -1,  1,  1};
+    int dc[] = { 0,  0, -1,  1, -1,  1, -1,  1};
+
+Modifique o loop interno de busca da fila que testa os vizinhos para rodar 8 vezes:
+    // Altere o limite superior do laço de 4 para 8
+    for (int d = 0; d < 8; d++) {
+        int nl = cl + dl[d];
+        int nc = cc + dc[d];
+        if (nl < 0 || nl >= lin || nc < 0 || nc >= col)
+            continue;
+        int ni = nl * col + nc;
+        if (rotulo[ni] == 0 && entrada->pixels[ni] < LIMIAR) {
+            rotulo[ni] = n;
+            fila_enfileirar(fila, ni);
+        }
+    }
+
+
+--------------------------------------------------------------------------------
+CENÁRIO 4: Calcular e Exibir o Centro de Massa (Centroide) dos Objetos
+--------------------------------------------------------------------------------
+DESCRIÇÃO:
+O programa padrão guarda apenas a posição (x, y) do primeiro pixel que a varredura achou.
+O avaliador solicita uma função que calcule a coordenada média geográfica real (centroide)
+de cada objeto com base em todos os seus pixels combinados.
+
+LÓGICA: Centroide X = (Soma de todas as colunas) / Área | Centroide Y = (Soma de todas as linhas) / Área
+
+ALTERAÇÕES NO CÓDIGO:
+
+1. Em 'deteccao.h' (Adicionar o protótipo):
+void calcular_centroides(const int *rotulo, const Objeto *objetos, int n_objetos, int largura, int altura);
+
+2. Em 'deteccao.c' (Implementar no final do arquivo):
+void calcular_centroides(const int *rotulo, const Objeto *objetos, int n_objetos, int largura, int altura)
+{
+    if (n_objetos <= 0) return;
+
+    // Aloca acumuladores de coordenadas de forma dinâmica e segura
+    long long *soma_x = (long long *)calloc(n_objetos, sizeof(long long));
+    long long *soma_y = (long long *)calloc(n_objetos, sizeof(long long));
+    if (!soma_x || !soma_y) { free(soma_x); free(soma_y); return; }
+
+    // Varredura linear única em toda a matriz de rótulos (O(P) - Alta Eficiência)
+    for (int l = 0; l < altura; l++) {
+        for (int c = 0; c < largura; c++) {
+            int r = rotulo[l * largura + c];
+            if (r > 0) { 
+                soma_x[r - 1] += c;
+                soma_y[r - 1] += l;
+            }
+        }
+    }
+
+    printf("\n--- CENTROIDES CALCULADOS ---\n");
+    for (int i = 0; i < n_objetos; i++) {
+        if (objetos[i].area > 0) {
+            double cx = (double)soma_x[i] / objetos[i].area;
+            double cy = (double)soma_y[i] / objetos[i].area;
+            printf("Objeto %d -> Centroide: X = %.2f, Y = %.2f\n", objetos[i].id, cx, cy);
+        }
+    }
+
+    free(soma_x);
+    free(soma_y);
+}
+
+3. No 'main.c' (Como chamar):
+Pode ser executado logo antes ou depois da listagem normal:
+    atribuir_cores(entrada, rotulo, objetos, n);
+    imprimir_objetos(objetos, n);
+    
+    // Adicione a chamada:
+    calcular_centroides(rotulo, objetos, n, entrada->largura, entrada->altura);
+
+
+--------------------------------------------------------------------------------
+CENÁRIO 5: Inverter Cores do Fundo e dos Objetos (Efeito Negativo)
+--------------------------------------------------------------------------------
+DESCRIÇÃO:
+O professor pede que o resultado final seja gerado em fundo preto absoluto (em vez do
+fundo branco padrão), destacando as cores RGB sorteadas sobre o fundo escuro.
+
+ALTERAÇÕES NO CÓDIGO:
+
+Esta modificação é feita diretamente na lógica de cor de 'gerar_saida_colorida' em 'deteccao.c'.
+
+1. Em 'deteccao.c' (Localizar o bloco do fundo e trocar o valor RGB):
+No loop de gravação dos pixels do arquivo PPM, altere o bloco 'if' do fundo:
+```c
+        // Antes:
+        if (rotulo[i] == 0) {
+            r = g = b = 255; /* fundo branco */
+        }
+        
+        // Mudar para:
+        if (rotulo[i] == 0) {
+            r = g = b = 0;   /* fundo invertido para preto absoluto */
+        }
+CENÁRIO 6: Identificar e Contar Objetos que Tocam as Bordas da Imagem
+DESCRIÇÃO:
+Objetos que encostam nos limites da imagem podem estar cortados. O professor pede para
+implementar uma função matemática que retorne a quantidade exata de objetos que tocam
+pelo menos uma das 4 extremidades da imagem (primeira/última linha ou coluna).
+
+ALTERAÇÕES NO CÓDIGO:
+
+Em 'deteccao.h' (Adicionar o protótipo):
+int contar_objetos_na_borda(const int *rotulo, int n_objetos, int largura, int altura);
+
+Em 'deteccao.c' (Implementar no final do arquivo):
+int contar_objetos_na_borda(const int *rotulo, int n_objetos, int largura, int altura)
+{
+if (n_objetos <= 0) return 0;
+
+// Vetor booleano para marcar quais IDs de objetos encostaram na borda
+char *na_borda = (char *)calloc(n_objetos + 1, sizeof(char));
+if (!na_borda) return 0;
+
+// 1. Varre a linha do Topo (l=0) e a linha da Base (l=altura-1)
+for (int c = 0; c < largura; c++) {
+int obj_topo = rotulo[0 * largura + c];
+int obj_base = rotulo[(altura - 1) * largura + c];
+
+ if (obj_topo > 0) na_borda[obj_topo] = 1;
+ if (obj_base > 0) na_borda[obj_base] = 1;
+}
+
+// 2. Varre a coluna da Esquerda (c=0) e a coluna da Direita (c=largura-1)
+for (int l = 0; l < altura; l++) {
+int obj_esq = rotulo[l * largura + 0];
+int obj_dir = rotulo[l * largura + (largura - 1)];
+
+ if (obj_esq > 0) na_borda[obj_esq] = 1;
+ if (obj_dir > 0) na_borda[obj_dir] = 1;
+}
+
+// 3. Contabiliza os objetos marcados
+int contagem = 0;
+for (int i = 1; i <= n_objects; i++) {
+if (na_borda[i] == 1) {
+contagem++;
+}
+}
+
+free(na_borda);
+return contagem;
+}
+
+No 'main.c' (Como chamar):
+Insira a chamada antes da liberação final das variáveis para expor o resultado no terminal:
+int n_bordas = contar_objetos_na_borda(rotulo, n, entrada->largura, entrada->altura);
+printf("Quantidade de objetos que interceptam as bordas: %d\n", n_bordas);
+
+================================================================================

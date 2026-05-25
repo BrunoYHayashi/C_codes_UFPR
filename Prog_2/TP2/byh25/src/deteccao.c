@@ -77,7 +77,7 @@ int detectar_objetos(const ImagemPGM *entrada, int *rotulo, Objeto *objetos)
                 objetos[n-1].x    = c;
                 objetos[n-1].y    = l;
                 objetos[n-1].area = 0;
-                objetos[n-1].cor  = (n - 1) % 8;
+                objetos[n-1].cor  = (n - 1) % N_CORES;
 
                 rotulo[idx] = n;
                 fila->inicio = fila->fim = 0; /* reseta fila */
@@ -314,11 +314,16 @@ void atribuir_cores(const ImagemPGM *entrada, const int *rotulo, Objeto *objetos
     int *maxl = (int *)malloc(n_objetos * sizeof(int));
     int *minc = (int *)malloc(n_objetos * sizeof(int));
     int *maxc = (int *)malloc(n_objetos * sizeof(int));
-    if (!minl || !maxl || !minc || !maxc) return;
+    if (!minl || !maxl || !minc || !maxc) { 
+        free(minl); 
+        free(maxl); 
+        free(minc); 
+        free(maxc);
+        return;
+    }
 
     for (int i = 0; i < n_objetos; i++)
-        bbox(entrada, rotulo, objetos[i].id,
-            &minl[i], &maxl[i], &minc[i], &maxc[i]);
+        bbox(entrada, rotulo, objetos[i].id, &minl[i], &maxl[i], &minc[i], &maxc[i]);
 
     /* Atribui cores: percorre objetos em ordem e agrupa iguais */
     int proxima_cor = 0;
